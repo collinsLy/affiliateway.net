@@ -15,16 +15,6 @@ export default function Dashboard() {
       
       <main className="container max-w-lg mx-auto px-4 py-6 space-y-6">
         
-        {/* Admin Link (Temporary for demo) */}
-        <div className="flex justify-end">
-            <Link href="/admin">
-                <Button variant="outline" size="sm" className="gap-2 bg-white/50 backdrop-blur-sm">
-                    <Settings className="w-4 h-4" />
-                    Admin Panel
-                </Button>
-            </Link>
-        </div>
-
         {/* Stats Cards */}
         <div className="space-y-4">
           <Card className="rounded-2xl border-none shadow-sm">
