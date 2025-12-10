@@ -165,9 +165,11 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        <Button variant="outline" className="w-full h-12 rounded-xl bg-white border border-gray-200 text-slate-900 hover:bg-gray-50 mt-4">
-          View More
-        </Button>
+        <Link href="/located-zone">
+          <Button variant="outline" className="w-full h-12 rounded-xl bg-white border border-gray-200 text-slate-900 hover:bg-gray-50 mt-4 cursor-pointer">
+            View More
+          </Button>
+        </Link>
 
       </main>
     </div>

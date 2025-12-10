@@ -9,6 +9,8 @@ import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
 
+import LocatedZone from "@/pages/located-zone";
+
 function Router() {
   const [location, setLocation] = useLocation();
 
@@ -21,6 +23,7 @@ function Router() {
     <Switch>
       <Route path="/login" component={Login} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/located-zone" component={LocatedZone} />
       <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>

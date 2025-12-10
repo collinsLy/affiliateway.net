@@ -23,6 +23,7 @@ export interface AppState {
   marketingData: DataPoint[];
   sharingData: DataPoint[];
   pieData: PieDataPoint[];
+  fullZoneData: { name: string; quantity: number; percentage: number }[];
   stats: {
     marketing: StatsData;
     sharing: StatsData;
@@ -64,6 +65,20 @@ const initialPieData = [
   { name: 'NGA', value: 2.53, quantity: 5, fill: 'var(--color-chart-5)' },
 ];
 
+const initialFullZoneData = [
+  { name: 'PHL', quantity: 104, percentage: 52.79 },
+  { name: 'ME_EARTH', quantity: 33, percentage: 16.75 },
+  { name: 'IND', quantity: 26, percentage: 13.19 },
+  { name: 'KEN', quantity: 17, percentage: 8.62 },
+  { name: 'NGA', quantity: 5, percentage: 2.53 },
+  { name: 'IDN', quantity: 3, percentage: 1.52 },
+  { name: 'PAK', quantity: 3, percentage: 1.52 },
+  { name: 'VNM', quantity: 2, percentage: 1.01 },
+  { name: 'BGD', quantity: 2, percentage: 1.01 },
+  { name: 'MEX', quantity: 1, percentage: 0.50 },
+  { name: 'USA', quantity: 1, percentage: 0.50 },
+];
+
 const initialStats = {
   marketing: {
     total: 197,
@@ -83,6 +98,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [marketingData, setMarketingData] = useState<DataPoint[]>(initialMarketingData);
   const [sharingData, setSharingData] = useState<DataPoint[]>(initialSharingData);
   const [pieData, setPieData] = useState<PieDataPoint[]>(initialPieData);
+  const [fullZoneData, setFullZoneData] = useState(initialFullZoneData);
   const [stats, setStats] = useState(initialStats);
 
   const updateStats = (category: 'marketing' | 'sharing', data: Partial<StatsData>) => {
@@ -114,6 +130,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       marketingData,
       sharingData,
       pieData,
+      fullZoneData,
       stats,
       updateStats,
       updatePieData,
