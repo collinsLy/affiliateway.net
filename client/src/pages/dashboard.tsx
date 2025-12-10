@@ -18,42 +18,46 @@ export default function Dashboard() {
         {/* Stats Cards */}
         <div className="space-y-4">
           <Card className="rounded-[20px] border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white overflow-hidden">
-            <CardContent className="p-7 flex items-center justify-between">
+            <CardContent className="p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
               <div className="space-y-2">
                 <p className="text-[15px] font-medium text-gray-500">Marketing Data</p>
                 <p className="text-[40px] font-bold text-slate-900 leading-none">{stats.marketing.total}</p>
               </div>
-              <div className="flex gap-12 text-center pr-4">
-                <div className="space-y-1">
-                  <p className="text-[13px] text-gray-400">Verified</p>
-                  <p className="text-[22px] font-bold text-[#3B82F6] leading-tight">{stats.marketing.verified}</p>
+              <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto sm:gap-12">
+                <div className="flex gap-12 text-center pr-4">
+                  <div className="space-y-1">
+                    <p className="text-[13px] text-gray-400">Verified</p>
+                    <p className="text-[22px] font-bold text-[#3B82F6] leading-tight">{stats.marketing.verified}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[13px] text-gray-300">Not Verified</p>
+                    <p className="text-[22px] font-bold text-gray-400 leading-tight">{stats.marketing.notVerified}</p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-[13px] text-gray-300">Not Verified</p>
-                  <p className="text-[22px] font-bold text-gray-400 leading-tight">{stats.marketing.notVerified}</p>
-                </div>
+                <ChevronRight className="text-gray-300 w-6 h-6 hidden sm:block" />
               </div>
-              <ChevronRight className="text-gray-300 w-6 h-6" />
             </CardContent>
           </Card>
 
           <Card className="rounded-[20px] border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white overflow-hidden">
-            <CardContent className="p-7 flex items-center justify-between">
+            <CardContent className="p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
               <div className="space-y-2">
                 <p className="text-[15px] font-medium text-gray-500">Sharing Data</p>
                 <p className="text-[40px] font-bold text-slate-900 leading-none">{stats.sharing.total}</p>
               </div>
-              <div className="flex gap-12 text-center pr-4">
-                <div className="space-y-1">
-                  <p className="text-[13px] text-gray-400">Verified</p>
-                  <p className="text-[22px] font-bold text-[#3B82F6] leading-tight">{stats.sharing.verified}</p>
+              <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto sm:gap-12">
+                <div className="flex gap-12 text-center pr-4">
+                  <div className="space-y-1">
+                    <p className="text-[13px] text-gray-400">Verified</p>
+                    <p className="text-[22px] font-bold text-[#3B82F6] leading-tight">{stats.sharing.verified}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[13px] text-gray-300">Not Verified</p>
+                    <p className="text-[22px] font-bold text-gray-400 leading-tight">{stats.sharing.notVerified}</p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-[13px] text-gray-300">Not Verified</p>
-                  <p className="text-[22px] font-bold text-gray-400 leading-tight">{stats.sharing.notVerified}</p>
-                </div>
+                <ChevronRight className="text-gray-300 w-6 h-6 hidden sm:block" />
               </div>
-              <ChevronRight className="text-gray-300 w-6 h-6" />
             </CardContent>
           </Card>
         </div>
