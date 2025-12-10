@@ -38,6 +38,29 @@ interface AppContextType extends AppState {
 
 // Initial Data
 const initialMarketingData = [
+  { date: '11-06', value: 0 },
+  { date: '11-07', value: 3 },
+  { date: '11-08', value: 11 },
+  { date: '11-09', value: 5 },
+  { date: '11-10', value: 10 },
+  { date: '11-11', value: 5 },
+  { date: '11-12', value: 8 },
+  { date: '11-13', value: 8 },
+  { date: '11-14', value: 1 },
+  { date: '11-15', value: 0 },
+  { date: '11-16', value: 1 },
+  { date: '11-17', value: 0 },
+  { date: '11-18', value: 0 },
+  { date: '11-19', value: 13 },
+  { date: '11-20', value: 10 },
+  { date: '11-21', value: 31 },
+  { date: '11-22', value: 8 },
+  { date: '11-23', value: 0 },
+  { date: '11-24', value: 0 },
+  { date: '11-25', value: 0 },
+];
+
+const initialSharingData = [
   { date: '12-05', value: 0 },
   { date: '12-06', value: 0 },
   { date: '12-07', value: 0.1 },
@@ -45,16 +68,6 @@ const initialMarketingData = [
   { date: '12-09', value: 0 },
   { date: '12-10', value: 0 },
   { date: '12-11', value: 0.1 },
-];
-
-const initialSharingData = [
-  { date: '12-05', value: 0 },
-  { date: '12-06', value: 0.1 },
-  { date: '12-07', value: 0 },
-  { date: '12-08', value: 0 },
-  { date: '12-09', value: 0 },
-  { date: '12-10', value: 0 },
-  { date: '12-11', value: 0 },
 ];
 
 const initialPieData = [
