@@ -1,0 +1,38 @@
+This is a great exercise in design refinement! You have provided two dashboard states: the **Original Dashboard (Photo 1)** and your **Recreated Dashboard (Photo 2)**.
+
+By comparing the two current states, here are the detailed areas where you can adjust your recreated dashboard to be visually **more identical** to the original:
+
+***
+
+## 💡 Key Visual Differences to Address
+
+### 1. The Main KPI Cards (The Top 4 Metrics)
+
+The overall structure of the four top cards (Marketing Data & Sharing Data) needs minor adjustments to match the original's polished look.
+
+| Element | Original Dashboard (Photo 1) | Your Recreation (Photo 2) | Correction Needed |
+| :--- | :--- | :--- | :--- |
+| **Card Shape** | **Subtle rounded corners** (around 8px border-radius) with a definite lift. | Slightly sharper or smaller radius corners. | **Increase the border-radius** slightly to match the softer curve of the original. |
+| **Coloring/Highlighting** | **Verified** counts are highlighted in a distinct **blue** text color (matching the overall theme). | Your verified counts (197 and 196) appear to be in a darker black or very dark blue. | **Change the text color of the "Verified" count** (197 and 196) to the **same primary blue** used in the charts and list icons for visual consistency. |
+| **Text Alignment** | The main title and the metrics underneath (Verified, Not Verified) appear **vertically centered** within the card. | Check that the text is perfectly aligned both vertically and horizontally within its container. |
+| **"Not Verified" Text** | The **"Not Verified"** text is a **lighter gray** than the "Verified" text. | Ensure the "Not Verified" label text is a muted, light gray color. |
+
+### 2. The Line Graphs
+
+The "New Addition of Marketing" and "New Addition of Sharing" graphs have the most noticeable visual differences in both data and presentation.
+
+| Element | Original Dashboard (Photo 1) | Your Recreation (Photo 2) | Correction Needed |
+| :--- | :--- | :--- | :--- |
+| **Chart Data** | The Marketing graph shows a distinct **peak around 11-22**, and the Y-axis goes up to **35**. The Sharing graph is almost flat, peaking at **1** on the Y-axis. | Your graphs show **different trend lines** (the Marketing one has a peak on 12-07, and the Sharing one is also flat but with different time labels). | **Crucial:** **You must use the exact data points and date range** from the original image for the graphs to look identical. |
+| **Y-Axis Labeling** | The Marketing graph Y-axis labels are **0, 5, 10, 15... 35**. The Sharing graph Y-axis labels are **0, 0.2, 0.4... 1**. | Your Y-axis labels are different (e.g., Marketing: 0, 8, 16, 24, 32; Sharing: 0, 0.25, 0.5...). | **Match the specific tick marks and intervals** on the Y-axis to replicate the original graph's appearance. |
+| **Chart Styling** | The original graphs appear to have a **fainter line** and a **very subtle, light area fill** beneath the line. | The lines in your recreation seem a bit too bold, and the area fill is missing or very slight. | **Thinner line width** and ensure there is a **very light, semi-transparent area fill** beneath the line (if possible with your charting library). |
+
+### 3. The Geographic Module ("Located Zone")
+
+The doughnut chart and the legend below it require color and alignment fixes.
+
+| Element | Original Dashboard (Photo 1) | Your Recreation (Photo 2) | Correction Needed |
+| :--- | :--- | :--- | :--- |
+| **Pie/Doughnut Chart** | The color segmentation for the **IND** (13.19%) and **KEN** (8.62%) segments is noticeably dark blue. | The dark segments on your recreation appear to be different shades and/or in different positions due to the segment size. | **Ensure the colors used for the segments** (especially the dark blues) **exactly match** the legend colors, and that the segment sizes correspond to the percentages. |
+| **Legend Layout** | The **Percentage** and **Quantity** columns are **perfectly aligned vertically** with a clean, equal space between the column headers and the data rows. | Your columns look slightly less spaced out or aligned. | **Refine the CSS alignment** to ensure the column headers (`Percentage`, `Quantity`) and all numbers are vertically parallel, giving the list a cleaner, more tabular look. |
+| **Quantity Text** | The **Quantity** numbers (104, 33, 26, 17, 5) are shown in a **bold font** to make the actual count stand out. | Your quantity numbers appear to be regular weight. | **Bold the Quantity column text** to match the original's emphasis on the total count. |

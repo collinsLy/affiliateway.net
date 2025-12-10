@@ -1,4 +1,4 @@
-import { Line, LineChart, ResponsiveContainer, PieChart, Pie, Cell, Tooltip, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Line, LineChart, ResponsiveContainer, PieChart, Pie, Cell, Tooltip, CartesianGrid, XAxis, YAxis, Area, AreaChart } from "recharts";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppData } from "@/lib/app-context";
@@ -17,7 +17,7 @@ export default function Dashboard() {
         
         {/* Stats Cards */}
         <div className="space-y-4">
-          <Card className="rounded-3xl border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white overflow-hidden">
+          <Card className="rounded-[20px] border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white overflow-hidden">
             <CardContent className="p-7 flex items-center justify-between">
               <div className="space-y-2">
                 <p className="text-[15px] font-medium text-gray-500">Marketing Data</p>
@@ -26,10 +26,10 @@ export default function Dashboard() {
               <div className="flex gap-12 text-center pr-4">
                 <div className="space-y-1">
                   <p className="text-[13px] text-gray-400">Verified</p>
-                  <p className="text-[22px] font-bold text-blue-500 leading-tight">{stats.marketing.verified}</p>
+                  <p className="text-[22px] font-bold text-[#3B82F6] leading-tight">{stats.marketing.verified}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[13px] text-gray-400">Not Verified</p>
+                  <p className="text-[13px] text-gray-300">Not Verified</p>
                   <p className="text-[22px] font-bold text-gray-400 leading-tight">{stats.marketing.notVerified}</p>
                 </div>
               </div>
@@ -37,7 +37,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-3xl border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white overflow-hidden">
+          <Card className="rounded-[20px] border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white overflow-hidden">
             <CardContent className="p-7 flex items-center justify-between">
               <div className="space-y-2">
                 <p className="text-[15px] font-medium text-gray-500">Sharing Data</p>
@@ -46,10 +46,10 @@ export default function Dashboard() {
               <div className="flex gap-12 text-center pr-4">
                 <div className="space-y-1">
                   <p className="text-[13px] text-gray-400">Verified</p>
-                  <p className="text-[22px] font-bold text-blue-500 leading-tight">{stats.sharing.verified}</p>
+                  <p className="text-[22px] font-bold text-[#3B82F6] leading-tight">{stats.sharing.verified}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[13px] text-gray-400">Not Verified</p>
+                  <p className="text-[13px] text-gray-300">Not Verified</p>
                   <p className="text-[22px] font-bold text-gray-400 leading-tight">{stats.sharing.notVerified}</p>
                 </div>
               </div>
@@ -60,14 +60,20 @@ export default function Dashboard() {
 
         {/* Charts */}
         <div className="space-y-6">
-          <Card className="rounded-3xl border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white p-7">
+          <Card className="rounded-[20px] border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white p-7">
             <CardHeader className="p-0 mb-8">
               <CardTitle className="text-[17px] font-medium text-slate-900">New Addition of Marketing</CardTitle>
             </CardHeader>
             <div className="h-[220px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={marketingData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                <AreaChart data={marketingData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorMarketing" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
                   <XAxis 
                     dataKey="date" 
                     axisLine={false} 
@@ -81,32 +87,41 @@ export default function Dashboard() {
                     tickLine={false} 
                     tick={{ fill: '#9CA3AF', fontSize: 11 }}
                     dx={-10}
+                    ticks={[0, 5, 10, 15, 20, 25, 30, 35]}
+                    domain={[0, 35]}
                   />
                   <Tooltip 
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
                     cursor={{ stroke: '#E5E7EB', strokeWidth: 1 }}
                   />
-                  <Line 
+                  <Area 
                     type="monotone" 
                     dataKey="value" 
-                    stroke="var(--color-primary)" 
-                    strokeWidth={2.5} 
-                    dot={false}
-                    activeDot={{ r: 6, fill: "var(--color-primary)", stroke: "#fff", strokeWidth: 2 }}
+                    stroke="#3B82F6" 
+                    strokeWidth={1.5} 
+                    fillOpacity={1} 
+                    fill="url(#colorMarketing)" 
+                    activeDot={{ r: 5, fill: "#3B82F6", stroke: "#fff", strokeWidth: 2 }}
                   />
-                </LineChart>
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </Card>
 
-          <Card className="rounded-3xl border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white p-7">
+          <Card className="rounded-[20px] border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white p-7">
             <CardHeader className="p-0 mb-8">
               <CardTitle className="text-[17px] font-medium text-slate-900">New Addition of Sharing</CardTitle>
             </CardHeader>
             <div className="h-[220px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={sharingData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                <AreaChart data={sharingData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                   <defs>
+                    <linearGradient id="colorSharing" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
                   <XAxis 
                     dataKey="date" 
                     axisLine={false} 
@@ -119,25 +134,28 @@ export default function Dashboard() {
                     tickLine={false} 
                     tick={{ fill: '#9CA3AF', fontSize: 11 }}
                     dx={-10}
+                    ticks={[0, 0.2, 0.4, 0.6, 0.8, 1]}
+                    domain={[0, 1]}
                   />
                   <Tooltip 
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
                     cursor={{ stroke: '#E5E7EB', strokeWidth: 1 }}
                   />
-                  <Line 
+                  <Area 
                     type="monotone" 
                     dataKey="value" 
-                    stroke="var(--color-primary)" 
-                    strokeWidth={2.5} 
-                    dot={false}
-                    activeDot={{ r: 6, fill: "var(--color-primary)", stroke: "#fff", strokeWidth: 2 }}
+                    stroke="#3B82F6" 
+                    strokeWidth={1.5} 
+                    fillOpacity={1} 
+                    fill="url(#colorSharing)"
+                    activeDot={{ r: 5, fill: "#3B82F6", stroke: "#fff", strokeWidth: 2 }}
                   />
-                </LineChart>
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </Card>
 
-          <Card className="rounded-3xl border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white p-7">
+          <Card className="rounded-[20px] border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white p-7">
             <CardHeader className="p-0 mb-10">
               <CardTitle className="text-[17px] font-medium text-slate-900">Located Zone</CardTitle>
             </CardHeader>
@@ -166,22 +184,22 @@ export default function Dashboard() {
               </div>
 
               <div className="w-full space-y-5">
-                <div className="flex justify-between text-[13px] text-gray-400 px-4 mb-3">
-                  <span>Zone</span>
-                  <div className="flex gap-14 pr-2">
-                    <span>Percentage</span>
-                    <span>Quantity</span>
-                  </div>
+                <div className="grid grid-cols-12 text-[13px] text-gray-400 px-4 mb-3">
+                  <div className="col-span-4">Zone</div>
+                  <div className="col-span-4 text-right pr-4">Percentage</div>
+                  <div className="col-span-4 text-right">Quantity</div>
                 </div>
                 {pieData.map((item) => (
-                  <div key={item.name} className="flex items-center justify-between text-[15px] px-4">
-                    <div className="flex items-center gap-3 min-w-[100px]">
+                  <div key={item.name} className="grid grid-cols-12 items-center text-[15px] px-4">
+                    <div className="col-span-4 flex items-center gap-3">
                       <div className="w-3.5 h-3.5 rounded-[4px]" style={{ backgroundColor: item.fill }} />
                       <span className="font-medium text-slate-700">{item.name}</span>
                     </div>
-                    <div className="flex gap-16 w-full justify-end">
-                      <span className="text-slate-600 w-20 text-right">{item.value}%</span>
-                      <span className="text-slate-900 font-medium w-8 text-right">{item.quantity}</span>
+                    <div className="col-span-4 text-right pr-4">
+                      <span className="text-slate-600">{item.value}%</span>
+                    </div>
+                    <div className="col-span-4 text-right">
+                      <span className="text-slate-900 font-bold">{item.quantity}</span>
                     </div>
                   </div>
                 ))}
