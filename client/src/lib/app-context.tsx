@@ -1,4 +1,7 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { auth, db } from './firebase';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 
 // Types
 export interface DataPoint {
@@ -20,6 +23,7 @@ export interface StatsData {
 }
 
 export interface AppState {
+  user: User | null;
   marketingData: DataPoint[];
   sharingData: DataPoint[];
   pieData: PieDataPoint[];
@@ -28,6 +32,7 @@ export interface AppState {
     marketing: StatsData;
     sharing: StatsData;
   };
+  loading: boolean;
 }
 
 interface AppContextType extends AppState {
@@ -75,38 +80,87 @@ const initialStats = {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  
   const [marketingData, setMarketingData] = useState<DataPoint[]>(initialMarketingData);
   const [sharingData, setSharingData] = useState<DataPoint[]>(initialSharingData);
   const [pieData, setPieData] = useState<PieDataPoint[]>(initialPieData);
   const [fullZoneData, setFullZoneData] = useState(initialFullZoneData);
   const [stats, setStats] = useState(initialStats);
 
-  const updateStats = (category: 'marketing' | 'sharing', data: Partial<StatsData>) => {
-    setStats(prev => ({
-      ...prev,
-      [category]: { ...prev[category], ...data }
-    }));
+  // Auth Listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Data Sync (only if user is logged in, but for prototype we can fetch always or check user)
+  useEffect(() => {
+    // We'll store everything in a single document 'dashboard/main' for simplicity
+    const docRef = doc(db, 'dashboard', 'main');
+    
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.marketingData) setMarketingData(data.marketingData);
+        if (data.sharingData) setSharingData(data.sharingData);
+        if (data.pieData) setPieData(data.pieData);
+        if (data.stats) setStats(data.stats);
+        if (data.fullZoneData) setFullZoneData(data.fullZoneData);
+      } else {
+        // Initialize if not exists
+        setDoc(docRef, {
+            marketingData: initialMarketingData,
+            sharingData: initialSharingData,
+            pieData: initialPieData,
+            fullZoneData: initialFullZoneData,
+            stats: initialStats
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+
+  const updateStats = async (category: 'marketing' | 'sharing', data: Partial<StatsData>) => {
+    const newStats = {
+      ...stats,
+      [category]: { ...stats[category], ...data }
+    };
+    setStats(newStats);
+    await setDoc(doc(db, 'dashboard', 'main'), { stats: newStats }, { merge: true });
   };
 
-  const updatePieData = (index: number, data: Partial<PieDataPoint>) => {
-    setPieData(prev => {
-      const newData = [...prev];
-      newData[index] = { ...newData[index], ...data };
-      return newData;
-    });
+  const updatePieData = async (index: number, data: Partial<PieDataPoint>) => {
+    const newPieData = [...pieData];
+    newPieData[index] = { ...newPieData[index], ...data };
+    setPieData(newPieData);
+    await setDoc(doc(db, 'dashboard', 'main'), { pieData: newPieData }, { merge: true });
   };
 
-  const updateChartData = (type: 'marketing' | 'sharing', index: number, value: number) => {
-    const setter = type === 'marketing' ? setMarketingData : setSharingData;
-    setter(prev => {
-      const newData = [...prev];
-      newData[index] = { ...newData[index], value };
-      return newData;
-    });
+  const updateChartData = async (type: 'marketing' | 'sharing', index: number, value: number) => {
+    const isMarketing = type === 'marketing';
+    const currentData = isMarketing ? marketingData : sharingData;
+    const newData = [...currentData];
+    newData[index] = { ...newData[index], value };
+    
+    if (isMarketing) setMarketingData(newData);
+    else setSharingData(newData);
+
+    await setDoc(doc(db, 'dashboard', 'main'), { 
+        [isMarketing ? 'marketingData' : 'sharingData']: newData 
+    }, { merge: true });
   };
 
   return (
     <AppContext.Provider value={{
+      user,
+      loading,
       marketingData,
       sharingData,
       pieData,

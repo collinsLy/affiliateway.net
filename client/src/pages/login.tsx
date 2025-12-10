@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -19,6 +22,8 @@ const loginSchema = z.object({
 export default function Login() {
   const [_, setLocation] = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
   
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -29,9 +34,25 @@ export default function Login() {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof loginSchema>) => {
-    console.log("Login data:", data);
-    setLocation("/dashboard");
+  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
+    setIsLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+      toast({
+        title: "Success",
+        description: "Logged in successfully",
+      });
+      setLocation("/dashboard");
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: error.message || "Invalid email or password",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -114,15 +135,11 @@ export default function Login() {
 
             <Button 
               type="submit" 
+              disabled={isLoading}
               className="w-full h-14 text-lg font-medium rounded-xl bg-[#A5AAB5] hover:bg-primary transition-colors mt-8"
-              // Note: The image shows a grey button initially, suggesting disabled or waiting state, 
-              // but I'll make it interactive. I used a greyish color as base to match the "pre-filled" look 
-              // but ideally it should be primary color when active. 
-              // Let's stick to the primary color defined in CSS but maybe with opacity if invalid?
-              // For now, I'll use the primary color style from the design system.
               style={{ backgroundColor: form.formState.isValid ? 'var(--color-primary)' : '#A5AAB5' }}
             >
-              Log in
+              {isLoading ? "Logging in..." : "Log in"}
             </Button>
           </form>
         </Form>
