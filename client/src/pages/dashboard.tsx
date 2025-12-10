@@ -1,17 +1,30 @@
 import { DashboardHeader } from "@/components/dashboard-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { marketingData, sharingData, pieData, stats } from "@/lib/mock-data";
+import { useAppData } from "@/lib/app-context";
 import { Line, LineChart, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 
 export default function Dashboard() {
+  const { marketingData, sharingData, pieData, stats } = useAppData();
+
   return (
     <div className="min-h-screen bg-[#F3F6FD] pb-20">
       <DashboardHeader />
       
       <main className="container max-w-lg mx-auto px-4 py-6 space-y-6">
         
+        {/* Admin Link (Temporary for demo) */}
+        <div className="flex justify-end">
+            <Link href="/admin">
+                <Button variant="outline" size="sm" className="gap-2 bg-white/50 backdrop-blur-sm">
+                    <Settings className="w-4 h-4" />
+                    Admin Panel
+                </Button>
+            </Link>
+        </div>
+
         {/* Stats Cards */}
         <div className="space-y-4">
           <Card className="rounded-2xl border-none shadow-sm">
