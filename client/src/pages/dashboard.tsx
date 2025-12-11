@@ -1,6 +1,7 @@
 import { Line, LineChart, ResponsiveContainer, PieChart, Pie, Cell, Tooltip, CartesianGrid, XAxis, YAxis, Area, AreaChart } from "recharts";
+import { useState, useMemo } from "react";
 import { DashboardHeader } from "@/components/dashboard-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { useAppData } from "@/lib/app-context";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,19 @@ import { Link } from "wouter";
 
 export default function Dashboard() {
   const { marketingData, sharingData, pieData, stats } = useAppData();
+  const [activeIndex, setActiveIndex] = useState<number>(-1);
+
+  const normalizedPieData = useMemo(() => {
+    const sumValues = pieData.reduce((s, d) => s + (d.value || 0), 0);
+    const totalQty = pieData.reduce((s, d) => s + (d.quantity || 0), 0);
+    if (Math.round(sumValues) !== 100 && totalQty > 0) {
+      return pieData.map((d) => ({
+        ...d,
+        value: (d.quantity / totalQty) * 100,
+      }));
+    }
+    return pieData;
+  }, [pieData]);
 
   return (
     <div className="min-h-screen bg-[#F3F6FD] pb-20">
@@ -21,7 +35,7 @@ export default function Dashboard() {
             <CardContent className="p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
               <div className="space-y-2">
                 <p className="text-[15px] font-medium text-gray-500">Marketing Data</p>
-                <p className="text-[40px] font-bold text-slate-900 leading-none">{stats.marketing.total}</p>
+                <p className="text-[40px] font-semibold text-slate-900 leading-none">{stats.marketing.total}</p>
               </div>
               <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto sm:gap-12">
                 <div className="flex gap-12 text-center pr-4">
@@ -43,7 +57,7 @@ export default function Dashboard() {
             <CardContent className="p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
               <div className="space-y-2">
                 <p className="text-[15px] font-medium text-gray-500">Sharing Data</p>
-                <p className="text-[40px] font-bold text-slate-900 leading-none">{stats.sharing.total}</p>
+                <p className="text-[40px] font-semibold text-slate-900 leading-none">{stats.sharing.total}</p>
               </div>
               <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto sm:gap-12">
                 <div className="flex gap-12 text-center pr-4">
@@ -64,7 +78,7 @@ export default function Dashboard() {
 
         {/* Charts */}
         <div className="space-y-6">
-          <Card className="rounded-[20px] border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white p-7">
+          <Card className="rounded-[20px] border-none shadow-[0_4px_24px_rgba(0,0,0,0.02)] bg-white p-7 located-zone">
             <CardHeader className="p-0 mb-8">
               <CardTitle className="text-[17px] font-medium text-slate-900">New Addition of Marketing</CardTitle>
             </CardHeader>
@@ -91,8 +105,8 @@ export default function Dashboard() {
                     tickLine={false} 
                     tick={{ fill: '#9CA3AF', fontSize: 11 }}
                     dx={-10}
-                    ticks={[0, 5, 10, 15, 20, 25, 30, 35]}
-                    domain={[0, 35]}
+                    ticks={[0, 10, 20, 30, 40, 50, 60]}
+                    domain={[0, 60]}
                   />
                   <Tooltip 
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
@@ -138,8 +152,8 @@ export default function Dashboard() {
                     tickLine={false} 
                     tick={{ fill: '#9CA3AF', fontSize: 11 }}
                     dx={-10}
-                    ticks={[0, 0.2, 0.4, 0.6, 0.8, 1]}
-                    domain={[0, 1]}
+                    ticks={[0, 10, 20, 30, 40, 50, 60]}
+                    domain={[0, 60]}
                   />
                   <Tooltip 
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
@@ -168,7 +182,7 @@ export default function Dashboard() {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={pieData}
+                      data={normalizedPieData}
                       cx="50%"
                       cy="50%"
                       innerRadius={55}
@@ -176,14 +190,25 @@ export default function Dashboard() {
                       paddingAngle={0}
                       dataKey="value"
                       stroke="none"
+                      activeIndex={activeIndex}
+                      onMouseEnter={(_, i) => setActiveIndex(i)}
+                      onMouseLeave={() => setActiveIndex(-1)}
                     >
-                      {pieData.map((entry, index) => (
+                      {normalizedPieData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
                     </Pie>
+                    <Tooltip
+                      formatter={(value: any, _name: any, props: any) => {
+                        const v = typeof value === "number" ? value : Number(value);
+                        const pct = `${v.toFixed(2)}%`;
+                        const qty = props?.payload?.quantity;
+                        const label = props?.payload?.name;
+                        return [pct, label + (qty !== undefined ? ` • ${qty}` : "")];
+                      }}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
-                {/* Center White Circle to simulate Donut Chart thicker ring */}
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white rounded-full shadow-sm" />
               </div>
 
@@ -193,30 +218,31 @@ export default function Dashboard() {
                   <div className="col-span-4 text-right pr-4">Percentage</div>
                   <div className="col-span-4 text-right">Quantity</div>
                 </div>
-                {pieData.map((item) => (
-                  <div key={item.name} className="grid grid-cols-12 items-center text-[15px] px-4">
+                {normalizedPieData.map((item) => (
+                  <div key={item.name} className="grid grid-cols-12 items-center text-[15px] px-4 zone-row">
                     <div className="col-span-4 flex items-center gap-3">
                       <div className="w-3.5 h-3.5 rounded-[4px]" style={{ backgroundColor: item.fill }} />
                       <span className="font-medium text-slate-700">{item.name}</span>
                     </div>
                     <div className="col-span-4 text-right pr-4">
-                      <span className="text-slate-600">{item.value}%</span>
+                      <span className="text-slate-600 percentage">{item.value.toFixed(2)}%</span>
                     </div>
                     <div className="col-span-4 text-right">
-                      <span className="text-slate-900 font-bold">{item.quantity}</span>
+                      <span className="text-slate-900 quantity">{item.quantity}</span>
                     </div>
                   </div>
                 ))}
               </div>
+              <CardFooter className="pt-4">
+                <Link href="/located-zone" className="w-full">
+                  <Button variant="outline" className="w-full h-12 rounded-xl bg-white border border-gray-200 text-slate-900 hover:bg-gray-50">
+                    View More
+                  </Button>
+                </Link>
+              </CardFooter>
             </div>
           </Card>
         </div>
-
-        <Link href="/located-zone">
-          <Button variant="outline" className="w-full h-12 rounded-xl bg-white border border-gray-200 text-slate-900 hover:bg-gray-50 mt-4 cursor-pointer">
-            View More
-          </Button>
-        </Link>
 
       </main>
     </div>

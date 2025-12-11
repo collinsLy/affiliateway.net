@@ -122,3 +122,12 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+.located-zone .zone-row {
+  line-height: 1.2;
+  padding-bottom: 4px;
+}
+
+.located-zone .quantity {
+  font-weight: 600;
+}

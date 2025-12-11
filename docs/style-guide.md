@@ -35,5 +35,9 @@
 - Header: nav with accessible labels.
 - Stat cards: total, verified, not verified blocks.
 - Area charts: marketing and sharing with tooltips.
-- Pie chart: donut, tooltip, center label, legend.
+- Pie chart: donut, tooltip, legend.
 
+## Located Zone
+- Row density: line-height 1.2, compact bottom padding.
+- Quantity weight: 600 for numeric emphasis without heaviness.
+- Button: contained within the card footer with full-width alignment.
