@@ -4,12 +4,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useAppData } from "@/lib/app-context";
+import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { ArrowLeft } from "lucide-react";
 
 export default function Admin() {
-  const { stats, pieData, updateStats, updatePieData } = useAppData();
+  const { user, loading, stats, pieData, marketingData, sharingData, updateStats, updatePieData, updateChartData } = useAppData();
   const [_, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      setLocation("/login");
+    }
+  }, [loading, user, setLocation]);
 
   return (
     <div className="min-h-screen bg-[#F3F6FD] pb-20">
@@ -127,6 +134,58 @@ export default function Admin() {
                 </div>
                 <div className="col-span-3 flex justify-end pb-2">
                   <div className="w-8 h-8 rounded-full border shadow-sm" style={{ backgroundColor: item.fill }} />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Marketing Chart Data Edit */}
+        <Card className="rounded-2xl border-none shadow-sm">
+          <CardHeader>
+            <CardTitle>Marketing Chart Data</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {marketingData.map((point, index) => (
+              <div key={index} className="grid grid-cols-12 gap-4 items-end">
+                <div className="col-span-6 space-y-2">
+                  <Label className="text-xs text-gray-500">Date</Label>
+                  <Input value={point.date} readOnly />
+                </div>
+                <div className="col-span-6 space-y-2">
+                  <Label className="text-xs text-gray-500">Value</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={point.value}
+                    onChange={(e) => updateChartData('marketing', index, Number(e.target.value))}
+                  />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Sharing Chart Data Edit */}
+        <Card className="rounded-2xl border-none shadow-sm">
+          <CardHeader>
+            <CardTitle>Sharing Chart Data</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {sharingData.map((point, index) => (
+              <div key={index} className="grid grid-cols-12 gap-4 items-end">
+                <div className="col-span-6 space-y-2">
+                  <Label className="text-xs text-gray-500">Date</Label>
+                  <Input value={point.date} readOnly />
+                </div>
+                <div className="col-span-6 space-y-2">
+                  <Label className="text-xs text-gray-500">Value</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={point.value}
+                    onChange={(e) => updateChartData('sharing', index, Number(e.target.value))}
+                  />
                 </div>
               </div>
             ))}

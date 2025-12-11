@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { auth, db } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 // Types
 export interface DataPoint {
@@ -82,6 +83,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
   
   const [marketingData, setMarketingData] = useState<DataPoint[]>(initialMarketingData);
   const [sharingData, setSharingData] = useState<DataPoint[]>(initialSharingData);
@@ -98,33 +100,52 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  // Data Sync (only if user is logged in, but for prototype we can fetch always or check user)
+  // Data Sync: only subscribe when authenticated
   useEffect(() => {
-    // We'll store everything in a single document 'dashboard/main' for simplicity
     const docRef = doc(db, 'dashboard', 'main');
-    
-    const unsubscribe = onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        if (data.marketingData) setMarketingData(data.marketingData);
-        if (data.sharingData) setSharingData(data.sharingData);
-        if (data.pieData) setPieData(data.pieData);
-        if (data.stats) setStats(data.stats);
-        if (data.fullZoneData) setFullZoneData(data.fullZoneData);
-      } else {
-        // Initialize if not exists
-        setDoc(docRef, {
+
+    if (!user) {
+      return;
+    }
+
+    const unsubscribe = onSnapshot(
+      docRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.marketingData) setMarketingData(data.marketingData);
+          if (data.sharingData) setSharingData(data.sharingData);
+          if (data.pieData) setPieData(data.pieData);
+          if (data.stats) setStats(data.stats);
+          if (data.fullZoneData) setFullZoneData(data.fullZoneData);
+        } else {
+          setDoc(docRef, {
             marketingData: initialMarketingData,
             sharingData: initialSharingData,
             pieData: initialPieData,
             fullZoneData: initialFullZoneData,
-            stats: initialStats
-        });
+            stats: initialStats,
+          }).catch(() => {
+            // ignore; rules may block writes
+          });
+        }
+      },
+      (error) => {
+        // Permission denied or other listener errors
+        // Keep local state; surface via toast
+        try {
+          const { toast } = require('@/hooks/use-toast');
+          toast.useToast().toast({
+            variant: 'destructive',
+            title: 'Realtime sync disabled',
+            description: error.message || 'Missing or insufficient permissions',
+          });
+        } catch {}
       }
-    });
+    );
 
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
 
   const updateStats = async (category: 'marketing' | 'sharing', data: Partial<StatsData>) => {
@@ -133,14 +154,46 @@ export function AppProvider({ children }: { children: ReactNode }) {
       [category]: { ...stats[category], ...data }
     };
     setStats(newStats);
-    await setDoc(doc(db, 'dashboard', 'main'), { stats: newStats }, { merge: true });
+    try {
+      if (!user) {
+        toast({
+          variant: 'destructive',
+          title: 'Not logged in',
+          description: 'Please log in to save changes.'
+        });
+        return;
+      }
+      await setDoc(doc(db, 'dashboard', 'main'), { stats: newStats }, { merge: true });
+    } catch (err: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Failed to save stats',
+        description: err?.message || 'An unknown error occurred'
+      });
+    }
   };
 
   const updatePieData = async (index: number, data: Partial<PieDataPoint>) => {
     const newPieData = [...pieData];
     newPieData[index] = { ...newPieData[index], ...data };
     setPieData(newPieData);
-    await setDoc(doc(db, 'dashboard', 'main'), { pieData: newPieData }, { merge: true });
+    try {
+      if (!user) {
+        toast({
+          variant: 'destructive',
+          title: 'Not logged in',
+          description: 'Please log in to save changes.'
+        });
+        return;
+      }
+      await setDoc(doc(db, 'dashboard', 'main'), { pieData: newPieData }, { merge: true });
+    } catch (err: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Failed to save zone data',
+        description: err?.message || 'An unknown error occurred'
+      });
+    }
   };
 
   const updateChartData = async (type: 'marketing' | 'sharing', index: number, value: number) => {
@@ -152,9 +205,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (isMarketing) setMarketingData(newData);
     else setSharingData(newData);
 
-    await setDoc(doc(db, 'dashboard', 'main'), { 
+    try {
+      if (!user) {
+        toast({
+          variant: 'destructive',
+          title: 'Not logged in',
+          description: 'Please log in to save changes.'
+        });
+        return;
+      }
+      await setDoc(doc(db, 'dashboard', 'main'), { 
         [isMarketing ? 'marketingData' : 'sharingData']: newData 
-    }, { merge: true });
+      }, { merge: true });
+    } catch (err: any) {
+      toast({
+        variant: 'destructive',
+        title: `Failed to save ${isMarketing ? 'marketing' : 'sharing'} chart`,
+        description: err?.message || 'An unknown error occurred'
+      });
+    }
   };
 
   return (

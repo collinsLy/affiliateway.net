@@ -25,10 +25,8 @@ export function DashboardHeader() {
 
   return (
     <header className="w-full h-16 bg-black text-white px-4 md:px-8 flex items-center justify-between sticky top-0 z-50">
-      <Link href="/dashboard">
-        <a className="hover:opacity-80 transition-opacity">
-          <Logo size="sm" theme="dark" />
-        </a>
+      <Link href="/dashboard" className="hover:opacity-80 transition-opacity">
+        <Logo size="sm" theme="dark" />
       </Link>
 
       <div className="absolute left-1/2 transform -translate-x-1/2 font-medium text-sm hidden md:block">
