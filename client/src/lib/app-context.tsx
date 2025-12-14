@@ -107,6 +107,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const scopedKey = (name: string) => `dashboard:${user?.uid ?? 'guest'}:${name}`;
+
   // Auth Listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -116,16 +118,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+  // One-time migration: ensure per-user doc exists
+  useEffect(() => {
+    if (!user) return;
+    const docRef = doc(db, 'dashboards', user.uid);
+    getDoc(docRef).then((snap) => {
+      if (!snap.exists()) {
+        setDoc(docRef, {
+          marketingData: initialMarketingData,
+          sharingData: initialSharingData,
+          pieData: initialPieData,
+          fullZoneData: initialFullZoneData,
+          stats: initialStats,
+        }).catch(() => {});
+      }
+    }).catch(() => {});
+  }, [user]);
+
   // Data Sync: only subscribe when authenticated
   useEffect(() => {
-    const docRef = doc(db, 'dashboard', 'main');
-
     if (!user) {
-      const cachedMarketing = getCache<DataPoint[]>('dashboard:marketingData', initialMarketingData);
-      const cachedSharing = getCache<DataPoint[]>('dashboard:sharingData', initialSharingData);
-      const cachedPie = getCache<PieDataPoint[]>('dashboard:pieData', initialPieData);
-      const cachedStats = getCache<typeof initialStats>('dashboard:stats', initialStats);
-      const cachedZones = getCache<typeof initialFullZoneData>('dashboard:fullZoneData', initialFullZoneData);
+      const cachedMarketing = getCache<DataPoint[]>(scopedKey('marketingData'), initialMarketingData);
+      const cachedSharing = getCache<DataPoint[]>(scopedKey('sharingData'), initialSharingData);
+      const cachedPie = getCache<PieDataPoint[]>(scopedKey('pieData'), initialPieData);
+      const cachedStats = getCache<typeof initialStats>(scopedKey('stats'), initialStats);
+      const cachedZones = getCache<typeof initialFullZoneData>(scopedKey('fullZoneData'), initialFullZoneData);
       setMarketingData(cachedMarketing);
       setSharingData(cachedSharing);
       setPieData(cachedPie);
@@ -133,6 +150,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setFullZoneData(cachedZones);
       return;
     }
+
+    const docRef = doc(db, 'dashboards', user.uid);
 
     const unsubscribe = onSnapshot(
       docRef,
@@ -144,11 +163,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (data.pieData) setPieData(data.pieData);
           if (data.stats) setStats(data.stats);
           if (data.fullZoneData) setFullZoneData(data.fullZoneData);
-          setCache('dashboard:marketingData', data.marketingData ?? initialMarketingData);
-          setCache('dashboard:sharingData', data.sharingData ?? initialSharingData);
-          setCache('dashboard:pieData', data.pieData ?? initialPieData);
-          setCache('dashboard:stats', data.stats ?? initialStats);
-          setCache('dashboard:fullZoneData', data.fullZoneData ?? initialFullZoneData);
+          setCache(scopedKey('marketingData'), data.marketingData ?? initialMarketingData);
+          setCache(scopedKey('sharingData'), data.sharingData ?? initialSharingData);
+          setCache(scopedKey('pieData'), data.pieData ?? initialPieData);
+          setCache(scopedKey('stats'), data.stats ?? initialStats);
+          setCache(scopedKey('fullZoneData'), data.fullZoneData ?? initialFullZoneData);
         } else {
           setDoc(docRef, {
             marketingData: initialMarketingData,
@@ -156,9 +175,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             pieData: initialPieData,
             fullZoneData: initialFullZoneData,
             stats: initialStats,
-          }).catch(() => {
-            // ignore; rules may block writes
-          });
+          }).catch(() => {});
         }
       },
       (error) => {
@@ -167,11 +184,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
           title: 'Realtime sync disabled',
           description: error.message || 'Missing or insufficient permissions',
         });
-        const cachedMarketing = getCache<DataPoint[]>('dashboard:marketingData', initialMarketingData);
-        const cachedSharing = getCache<DataPoint[]>('dashboard:sharingData', initialSharingData);
-        const cachedPie = getCache<PieDataPoint[]>('dashboard:pieData', initialPieData);
-        const cachedStats = getCache<typeof initialStats>('dashboard:stats', initialStats);
-        const cachedZones = getCache<typeof initialFullZoneData>('dashboard:fullZoneData', initialFullZoneData);
+        const cachedMarketing = getCache<DataPoint[]>(scopedKey('marketingData'), initialMarketingData);
+        const cachedSharing = getCache<DataPoint[]>(scopedKey('sharingData'), initialSharingData);
+        const cachedPie = getCache<PieDataPoint[]>(scopedKey('pieData'), initialPieData);
+        const cachedStats = getCache<typeof initialStats>(scopedKey('stats'), initialStats);
+        const cachedZones = getCache<typeof initialFullZoneData>(scopedKey('fullZoneData'), initialFullZoneData);
         setMarketingData(cachedMarketing);
         setSharingData(cachedSharing);
         setPieData(cachedPie);
@@ -192,15 +209,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setStats(newStats);
     try {
       if (!user) {
-        setCache('dashboard:stats', newStats);
+        setCache(scopedKey('stats'), newStats);
         toast({ title: 'Saved locally', description: 'Login to sync to cloud.' });
         return;
       }
-      await setDoc(doc(db, 'dashboard', 'main'), { stats: newStats }, { merge: true });
-      setCache('dashboard:stats', newStats);
+      await setDoc(doc(db, 'dashboards', user.uid), { stats: newStats }, { merge: true });
+      setCache(scopedKey('stats'), newStats);
       toast({ title: 'Saved', description: 'Stats updated.' });
     } catch (err: any) {
-      setCache('dashboard:stats', newStats);
+      setCache(scopedKey('stats'), newStats);
       toast({ title: 'Saved locally', description: err?.message || 'Cloud save failed.' });
     }
   };
@@ -211,15 +228,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setPieData(newPieData);
     try {
       if (!user) {
-        setCache('dashboard:pieData', newPieData);
+        setCache(scopedKey('pieData'), newPieData);
         toast({ title: 'Saved locally', description: 'Login to sync to cloud.' });
         return;
       }
-      await setDoc(doc(db, 'dashboard', 'main'), { pieData: newPieData }, { merge: true });
-      setCache('dashboard:pieData', newPieData);
+      await setDoc(doc(db, 'dashboards', user.uid), { pieData: newPieData }, { merge: true });
+      setCache(scopedKey('pieData'), newPieData);
       toast({ title: 'Saved', description: 'Zone data updated.' });
     } catch (err: any) {
-      setCache('dashboard:pieData', newPieData);
+      setCache(scopedKey('pieData'), newPieData);
       toast({ title: 'Saved locally', description: err?.message || 'Cloud save failed.' });
     }
   };
@@ -235,17 +252,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     try {
       if (!user) {
-        setCache(isMarketing ? 'dashboard:marketingData' : 'dashboard:sharingData', newData);
+        setCache(scopedKey(isMarketing ? 'marketingData' : 'sharingData'), newData);
         toast({ title: 'Saved locally', description: 'Login to sync to cloud.' });
         return;
       }
-      await setDoc(doc(db, 'dashboard', 'main'), { 
+      await setDoc(doc(db, 'dashboards', user.uid), { 
         [isMarketing ? 'marketingData' : 'sharingData']: newData 
       }, { merge: true });
-      setCache(isMarketing ? 'dashboard:marketingData' : 'dashboard:sharingData', newData);
+      setCache(scopedKey(isMarketing ? 'marketingData' : 'sharingData'), newData);
       toast({ title: 'Saved', description: `${isMarketing ? 'Marketing' : 'Sharing'} chart updated.` });
     } catch (err: any) {
-      setCache(isMarketing ? 'dashboard:marketingData' : 'dashboard:sharingData', newData);
+      setCache(scopedKey(isMarketing ? 'marketingData' : 'sharingData'), newData);
       toast({ title: 'Saved locally', description: err?.message || 'Cloud save failed.' });
     }
   };
