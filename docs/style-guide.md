@@ -15,6 +15,7 @@
 - Font family: `Plus Jakarta Sans`, fallback `Inter`, sans-serif.
 - Title: 17px, medium.
 - Stat total: 40px, bold.
+- Adjusted to 600 weight for harmony on dashboard.
 - Stat labels: 13px, muted.
 - Body: 15px normal.
 
@@ -36,6 +37,11 @@
 - Stat cards: total, verified, not verified blocks.
 - Area charts: marketing and sharing with tooltips.
 - Pie chart: donut, tooltip, legend.
+
+## Head & Fonts
+- Meta viewport: `width=device-width`, `initial-scale=1.0`, `minimum-scale=1.0`, `maximum-scale=1.0`, `user-scalable=no`.
+- Apple mobile web app capable enabled.
+- Fonts loaded from Google: `Plus Jakarta Sans` and `Inter` with weights `300–700`.
 
 ## Located Zone
 - Row density: line-height 1.2, compact bottom padding.

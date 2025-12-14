@@ -25,7 +25,7 @@ export function DashboardHeader() {
 
   return (
     <header className="w-full h-16 bg-black text-white px-4 md:px-8 flex items-center justify-between sticky top-0 z-50">
-      <Link href="/dashboard" className="hover:opacity-80 transition-opacity">
+      <Link href="/dashboard" className="hover:opacity-80 transition-opacity" aria-label="Go to dashboard">
         <Logo size="sm" theme="dark" />
       </Link>
 
@@ -37,13 +37,13 @@ export function DashboardHeader() {
         <button className="flex items-center gap-1 text-gray-300 hover:text-white transition-colors">
           English <ChevronDown className="w-4 h-4" />
         </button>
-        <a 
-          href="#" 
+        <button 
           onClick={handleLogout}
           className="text-gray-300 hover:text-white transition-colors cursor-pointer"
+          aria-label="Log out"
         >
           Log Out
-        </a>
+        </button>
       </div>
     </header>
   );
