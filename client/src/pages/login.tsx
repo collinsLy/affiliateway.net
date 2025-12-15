@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence, AuthErrorCodes } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 
@@ -37,7 +37,18 @@ export default function Login() {
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      const email = data.email.trim();
+      const password = data.password.trim();
+
+      // Set persistence based on "Remember Password"
+      await setPersistence(auth, data.remember ? browserLocalPersistence : browserSessionPersistence);
+
+      // Basic credential validation before request
+      if (!email || !password) {
+        throw new Error("Please provide both email and password.");
+      }
+
+      await signInWithEmailAndPassword(auth, email, password);
       toast({
         title: "Success",
         description: "Logged in successfully",
@@ -45,10 +56,41 @@ export default function Login() {
       setLocation("/dashboard");
     } catch (error: any) {
       console.error("Login error:", error);
+
+      // Map Firebase auth errors to user-friendly messages
+      let message = "Login failed.";
+      const code = error?.code as string | undefined;
+
+      switch (code) {
+        case AuthErrorCodes.INVALID_PASSWORD:
+        case AuthErrorCodes.INVALID_EMAIL:
+        case "auth/invalid-credential":
+        case "auth/wrong-password":
+        case "auth/user-not-found":
+          message = "Invalid email or password. Please check and try again.";
+          break;
+        case AuthErrorCodes.TOO_MANY_ATTEMPTS_TRY_LATER:
+          message = "Too many attempts. Please wait a moment and try again.";
+          break;
+        case AuthErrorCodes.USER_DISABLED:
+          message = "This account has been disabled. Contact support.";
+          break;
+        case AuthErrorCodes.OPERATION_NOT_ALLOWED:
+          message = "Email/Password sign-in is not enabled in Firebase.";
+          break;
+        case AuthErrorCodes.NETWORK_REQUEST_FAILED:
+          message = "Network error. Check your connection or try again later.";
+          break;
+        default:
+          // Show Firebase detailed message if present
+          message = error?.message || message;
+          break;
+      }
+
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: error.message || "Invalid email or password",
+        description: message,
       });
     } finally {
       setIsLoading(false);

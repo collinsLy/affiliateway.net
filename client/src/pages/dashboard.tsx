@@ -23,6 +23,12 @@ export default function Dashboard() {
     return pieData;
   }, [pieData]);
 
+  const activeSlice = activeIndex >= 0 ? normalizedPieData[activeIndex] : null;
+  const totalPieQuantity = useMemo(
+    () => normalizedPieData.reduce((s, d) => s + (d.quantity || 0), 0),
+    [normalizedPieData]
+  );
+
   return (
     <div className="min-h-screen bg-[#F3F6FD] pb-20">
       <DashboardHeader />
@@ -98,15 +104,14 @@ export default function Dashboard() {
                     tickLine={false} 
                     tick={{ fill: '#9CA3AF', fontSize: 11 }}
                     dy={10}
-                    interval={3}
+                    interval="preserveStartEnd"
                   />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fill: '#9CA3AF', fontSize: 11 }}
                     dx={-10}
-                    ticks={[0, 10, 20, 30, 40, 50, 60]}
-                    domain={[0, 60]}
+                    domain={[0, 'dataMax + 10']}
                   />
                   <Tooltip 
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
@@ -146,14 +151,14 @@ export default function Dashboard() {
                     tickLine={false} 
                     tick={{ fill: '#9CA3AF', fontSize: 11 }}
                     dy={10}
+                    interval="preserveStartEnd"
                   />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fill: '#9CA3AF', fontSize: 11 }}
                     dx={-10}
-                    ticks={[0, 10, 20, 30, 40, 50, 60]}
-                    domain={[0, 60]}
+                    domain={[0, 'dataMax + 10']}
                   />
                   <Tooltip 
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
@@ -209,7 +214,16 @@ export default function Dashboard() {
                     />
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white rounded-full shadow-sm" />
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white rounded-full shadow-sm flex items-center justify-center">
+                  <div className="text-center leading-tight">
+                    <div className="text-[16px] font-semibold text-slate-900">
+                      {activeSlice ? `${activeSlice.value.toFixed(1)}%` : totalPieQuantity}
+                    </div>
+                    <div className="text-[11px] text-gray-400">
+                      {activeSlice ? `${activeSlice.quantity} • ${activeSlice.name}` : 'Total'}
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="w-full space-y-5">

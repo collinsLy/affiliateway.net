@@ -42,16 +42,26 @@ interface AppContextType extends AppState {
   updateChartData: (type: 'marketing' | 'sharing', index: number, value: number) => void;
 }
 
-// Initial Data - Empty/Zeroed out as requested
-const initialMarketingData = Array(21).fill(0).map((_, i) => ({
-  date: `11-${String(i + 6).padStart(2, '0')}`,
-  value: 0
-}));
+// Initial Data - dynamically generated recent dates, zeroed values
+const formatMMDD = (d: Date) => {
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${mm}-${dd}`;
+};
 
-const initialSharingData = Array(7).fill(0).map((_, i) => ({
-  date: `12-${String(i + 5).padStart(2, '0')}`,
-  value: 0
-}));
+const generateRecentSeries = (days: number) => {
+  const series: { date: string; value: number }[] = [];
+  const today = new Date();
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    series.push({ date: formatMMDD(d), value: 0 });
+  }
+  return series;
+};
+
+const initialMarketingData = generateRecentSeries(21);
+const initialSharingData = generateRecentSeries(7);
 
 const initialPieData = [
   { name: 'PHL', value: 0, quantity: 0, fill: '#0066FF' },
